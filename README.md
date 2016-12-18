@@ -22,7 +22,7 @@ Once cloned, copy all files in "src" directory to any directory of your preferen
 #### How it work?
 First you create a configuration, defining the host, resources and end-points. Then, you can create a MpHttpLayer or use a third-party one. Then, you can create an MpApiMap, an object that has all methods to access your api.
 
-#### Creating a MpApiMap
+#### Creating a MpConfig
 
 ```
 var myConfig : MpConfig = {
