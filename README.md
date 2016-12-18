@@ -1,5 +1,233 @@
-# api-mapper
-An api-mapper library written in Typescript. It is easy to use, isomorphic, lightweight and has no dependency.
+Api-Mapper
+===================
 
-# docs
-Soon
+Api-Mapper is a library written in TypeScript. It is easy to use, isomorphic, lightweight and has no dependency!
+
+----------
+
+
+Docs
+-------------
+
+####  Getting Started
+
+I have not published this library to any package manager repository yet, so you need to clone this repository. It is easy to get started.
+
+```
+git clone https://github.com/gugamm/api-mapper.git
+```
+
+Once cloned, copy all files in "src" directory to any directory of your preference
+
+#### How it work?
+First you create a configuration, defining the host, resources and end-points. Then, you can create a MpHttpLayer or use a third-party one. Then, you can create an MpApiMap, an object that has all methods to access your api.
+
+#### Creating a MpApiMap
+
+```
+var myConfig : MpConfig = {
+	host : 'http://www.myapi.com/api',
+	resources : [
+		{
+			host : '/students',
+			name : 'Students',
+			endPoints : [
+				{
+					name : 'getStudents',
+					path : ''
+				},
+				{
+					name : 'getStudent',
+					path : '/{id}
+				}
+			]
+		}
+	]
+}
+```
+
+#### Creating an MpHttpLayer
+
+```
+var myHttpLayer : MpHttpLayer = {
+	get : function (request : MpRequest, options ?: any) : Promise<MpResponse> {
+		return new Promise(function (resolve, reject) {
+			const response : MpResponse = {
+				data : 'Hello World'
+			};
+			resolve(response);
+		});
+	}
+}
+```
+
+#### Creating an MpApiMap
+
+```
+var myApiMap : any = new MpApiMap(myConfig, myHttpLayer);
+```
+
+> **Note** i used "any", this is because I can't define a Type for the generated object since it depends on your configuration. Im working on a project to create a definition type for your configuration in development type, so you can be type safe. For now, use "any". 
+
+#### First request
+```
+myApiMap.Students.getStudents().then(
+	(response : MpResponse) => console.log(response.data) //'hello world'
+}
+
+myApiMap.Students.getStudent({id : 10}).then(
+	(response : MpResponse) => console.log(response.data) //'hello world'
+}
+```
+
+Advanced docs
+-------------------
+Lets explore some advanced features that Api-Mapper provide.
+
+#### Path Parameters and Query String
+
+Note in our example "first request", we pass an object as the first argument to "getStudent" method. This object is used to set parameters for a request. If a parameter is a path parameter(in this case 'id'), then it will be replaced in the fullPath of the request. If its not a path parameter, then it will be added as a query string parameter.
+
+Example :
+```
+myApiMap.Students.getStudent({id : 10, anotherParameter : 'example'}).then(
+	(response : MpResponse) => console.log(response.data) //'hello world'
+}
+```
+
+The result path is : "http://www.myapi.com/api/students/10?anotherParameter=example"
+
+#### Headers
+
+You can set headers at configuration time or at run-time(after the map has been created). To do so, use the property "headers" defined in MpConfig, MpResource and MpEndPoint.
+
+Example :
+
+```
+var myConfig : MpConfig = {
+	host : 'http://www.myapi.com/api',
+	headers : {
+		'A-Header' : 'hello-world'
+	},
+	resources : [
+		{
+			host : '/students',
+			name : 'Students',
+			headers : {
+				'A-Header' : 'bye-world'
+			},
+			endPoints : [
+				{
+					name : 'getStudents',
+					path : '',
+					headers : {
+						'A-Header' : 'world'
+					},
+				},
+				{
+					name : 'getStudent',
+					path : '/{id}
+				}
+			]
+		}
+	]
+}
+```
+
+> **Note:** There is a override order that this library follows. It is from inside to outside, therefore, 'A-Header' final value is going to be 'hello-world'. You can use this to override any header value globally or for an entire resource if you want.
+
+#### BeforeRequest and AfterResponse
+
+These are two events that occour before a request starts and after a request finish. You can use it to log or do some validation. They are functions that can return a boolean or a Promise<boolean>. If beforeRequest resturns false, the request is cancelled. BeforeRequest must return true to continue the request. The results of AfterResponse will be ignored, so you can return anything. If you return a Promise, the application will wait for the promise to complete
+
+Example
+
+```
+var myConfig : MpConfig = {
+	host : 'http://www.myapi.com/api',
+	beforeRequest : function (request : MpRequest) : boolean {
+		console.log('Before every request');
+		return true;
+	},
+	afterResponse : function (request : MpRequest, response : MpResponse) : any {
+		response.data = 'This is so cool'; //You can do any transformation here
+		console.log('After called');
+		return 'blablabla';
+	},
+	resources : [
+		{
+			host : '/students',
+			name : 'Students',
+			beforeRequest : function (request : MpRequest) : boolean {
+				console.log('Before any Students request');
+				return true;
+			},
+			endPoints : [
+				{
+					name : 'getStudents',
+					path : '',
+					beforeRequest : function (request : MpRequest) : boolean {
+						console.log('Before getStudents request');
+						return true;
+					}
+				},
+				{
+					name : 'getStudent',
+					path : '/{id}
+				}
+			]
+		}
+	]
+}
+```
+the result for **myApiMap.getStudents().then((response : MpResponse) => console.log(response.data))** will be :
+```
+ //Before getStudents request
+ //Before any Students request
+ //Before every request
+ //After called
+ //This is so cool
+```
+
+
+> **Note:** There is a override order that this library follows. It is from inside to outside. So request events handler defined inside are called and resolved before the upper handler. Note that if the handler returns a Promise, the application will wait for that Promise to finish before executing the next one. If a Promise resolve false, the others Promises will not execute, since the request will be cancelled.
+
+####  Adding a resource at run-time
+
+```
+const resource : MpResource = {
+	host : '/players',
+	name : 'Players',
+	endPoints : [
+		{
+			name : 'getPlayers',
+			path : ''
+		}
+	]
+}
+
+myApiMap.addResourceMap(myApiMap.buildResourceMap(resource));
+
+myApiMap.Players.getPlayers().then(
+	(response : MpResponse) => console.log(response.data)
+);
+```
+
+####  Generated end point methods
+
+The generated end-point methods accept three arguments : 
+params ?: MpParams, body ?: any, headers ?: MpHeaders, **options ?: any**
+
+ params, body and headers are used to build the MpRequest that you see in RequestEvents and in your MpHttpLayer.
+
+options is an extra argument that you can use to pass some custom parameters to your MpHttpLayer methods. 
+
+This is an advanced feature that can be used by third-party MpHttpLayer developers to provide some extra funcionality.
+
+
+----------
+
+
+License
+-------------
+MIT
