@@ -38,7 +38,7 @@ var myConfig : MpConfig = {
 				},
 				{
 					name : 'getStudent',
-					path : '/{id}
+					path : '/{id}'
 				}
 			]
 		}
@@ -47,6 +47,10 @@ var myConfig : MpConfig = {
 ```
 
 #### Creating an MpHttpLayer
+The HttpLayer is responsible for making the request. This library is isomorphic, which means it can be used either on client or server. The HttpLayer is what makes this possible, since you can implement your own http layer depending if you are on a browser, or developing an application with NodeJs. 
+The MpHttpLayer is a interface that has all common Http methods : Get, Post, Put, Delete and Head. You are not required to implement all methods, but you must implement all methods that your api will use.
+All methods receive a request and options(you can pass parameters to your layer using this object), and must return a promise that will resolve in a MpResponse or reject with anything.
+Here is a example
 
 ```
 var myHttpLayer : MpHttpLayer = {
