@@ -48,7 +48,7 @@ var myConfig : MpConfig = {
 
 #### Creating an MpHttpLayer
 The HttpLayer is responsible for making the request. This library is isomorphic, which means it can be used either on client or server. The HttpLayer is what makes this possible, since you can implement your own http layer depending if you are on a browser, or developing an application with NodeJs. 
-The MpHttpLayer is a interface that has all common Http methods : Get, Post, Put, Delete and Head. You are not required to implement all methods, but you must implement all methods that your api will use.
+The MpHttpLayer is an interface that has all common Http methods : Get, Post, Put, Delete and Head. You **are not required to implement all methods**, **but you must implement all methods that your api will use**.
 All methods receive a request and options(you can pass parameters to your layer using this object), and must return a promise that will resolve in a MpResponse or reject with anything.
 Here is a example
 
@@ -68,13 +68,13 @@ var myHttpLayer : MpHttpLayer = {
 #### Creating an MpApiMap
 
 The MpApiMap is the object that has all methods created according to your configuration. He is very simple to use and very powerfull.
-This object represents the Map of your Api. You can access your resources by the "name" defined in your configuration and the endpoints(see first request example). For each endpoint, is created a function with a name defined in your configuration. This function has 4 parameters. An object(with key/value) that will fullfill your parameters, an object or anything that will fullfill your body, an object(with key/value) that will fullfill your headers and an object(key/value) that you can use to pass extra parameters to your HttpLayer. To create a MpApiMap, you need a configuration and an implementation of the HttpLayer. Here is a example
+This object represents the Map of your Api. You can access your resources by the "name" defined in your configuration and the endpoints(see first request example). **For each endpoint, is created a function with a name defined in your configuration**. This function has 4 parameters. An object(with key/value) that will fullfill your parameters, an object or anything that will fullfill your body, an object(with key/value) that will fullfill your headers **and an object(key/value) that you can use to pass extra parameters to your HttpLayer**. To create a MpApiMap, you need a configuration and an implementation of the HttpLayer. Here is a example
 
 ```
 var myApiMap : any = new MpApiMap(myConfig, myHttpLayer);
 ```
 
-> **Note** i used "any", this is because I can't define a Type for the generated object since it depends on your configuration. Im working on a project to create a definition type for your configuration in development type, so you can be type safe. For now, use "any". 
+> **Note** I used "any", this is because **I can't define a Type for the generated object since it depends on your configuration**. I'm working on a project to create a definition type for your configuration in development type, so you can be type safe. For now, use "any". 
 
 #### First request
 ```
