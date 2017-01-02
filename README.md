@@ -67,6 +67,9 @@ var myHttpLayer : MpHttpLayer = {
 
 #### Creating an MpApiMap
 
+The MpApiMap is the object that has all methods created according to your configuration. He is very simple to use and very powerfull.
+This object represents the Map of your Api. You can access your resources by the "name" defined in your configuration and the endpoints(see first request example). For each endpoint, is created a function with a name defined in your configuration. This function has 4 parameters. An object(with key/value) that will fullfill your parameters, an object or anything that will fullfill your body, an object(with key/value) that will fullfill your headers and an object(key/value) that you can use to pass extra parameters to your HttpLayer. To create a MpApiMap, you need a configuration and an implementation of the HttpLayer. Here is a example
+
 ```
 var myApiMap : any = new MpApiMap(myConfig, myHttpLayer);
 ```
