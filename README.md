@@ -5,6 +5,9 @@ Api-Mapper is a library written in TypeScript. It is easy to use, isomorphic, li
 
 ----------
 
+Version
+-------------
+v1.0
 
 Docs
 -------------
