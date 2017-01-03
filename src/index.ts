@@ -1,25 +1,10 @@
 import { MpHeaders, MpRequestEventHandler, MpResponseEventHandler, MpHttpLayer,
          MpConfig, MpResource, MpEndPoint, MpRequestParams, MpRequest, buildMpRequest, MpResponse, MpHttpRequestMethod } from './models/index';
 
-function execInSeries(promises : Promise<any>[]) : Promise<any> {
-  let fullPromise = Promise.resolve(true);
-  promises.forEach(
-    (promise : Promise<any>) => {
-      fullPromise = fullPromise.then(
-        (result : boolean) => {
-          if (result)
-            return promise;
-          return false;
-        }
-      );
-    }
-  );
-  return fullPromise;
-}
-
 export class MpResourceMap {
   public name           : string;
   public host           : string;
+  public endPoints      : {[endPointName : string] : MpEndPoint};
   public headers       ?: MpHeaders;
   public beforeRequest ?: MpRequestEventHandler;
   public afterResponse ?: MpResponseEventHandler;
@@ -33,20 +18,25 @@ export class MpResourceMap {
     this.headers       = resource.headers;
     this.beforeRequest = resource.beforeRequest;
     this.afterResponse = resource.afterResponse;
+    this.endPoints     = {};
 
     this.addEndPointsMethods(resource.endPoints);
   }
 
   private addEndPointsMethods(endPoints : MpEndPoint[]) : void {
+    endPoints.forEach(
+      (endPoint : MpEndPoint) => {
+        this.endPoints[endPoint.name] = endPoint;
+      }
+    );
     endPoints.forEach((endPoint : MpEndPoint) => this.addEndPointMethod(endPoint));
   }
 
   private addEndPointMethod(endPoint : MpEndPoint) : void {
-    let anyThis : any   = this;
-    anyThis[endPoint.name] = (params ?: MpRequestParams, body ?: any, headers ?: MpHeaders, options ?: any) => {
+    this[endPoint.name] = (params ?: MpRequestParams, body ?: any, headers ?: MpHeaders, options ?: any) => {
       return new Promise((resolve, reject) => {
-        const aHeaders : MpHeaders = Object.assign({}, headers, endPoint.headers, this.headers, this.apiMap.headers);
-        let request : MpRequest = buildMpRequest(this.buildFullPath(endPoint, params), endPoint, aHeaders, body, params);
+        const aHeaders : MpHeaders = Object.assign({}, this.apiMap.headers, this.headers, this.endPoints[endPoint.name].headers, headers);
+        let request : MpRequest = buildMpRequest(this.buildFullPath(this.endPoints[endPoint.name], params), this.endPoints[endPoint.name], aHeaders, body, params);
 
         this.solveBeforeRequest(request).then(
           () => {
@@ -131,10 +121,10 @@ export class MpResourceMap {
         });
       }
 
-      solveFunc(request.endPoint.beforeRequest, request).then(
+      solveFunc(this.apiMap.beforeRequest, request).then(
         () => {
           solveFunc(this.beforeRequest, request).then(
-            () => solveFunc(this.apiMap.beforeRequest, request).then(
+            () => solveFunc(request.endPoint.beforeRequest, request).then(
               () => resolve(),
               () => reject()
             ),
@@ -161,6 +151,7 @@ export class MpResourceMap {
       case MpHttpRequestMethod.POST   : return this.apiMap.httpLayer.post(request, options);
       case MpHttpRequestMethod.HEAD   : return this.apiMap.httpLayer.head(request, options);
       case MpHttpRequestMethod.DELETE : return this.apiMap.httpLayer.delete(request, options);
+      case MpHttpRequestMethod.PATCH  : return this.apiMap.httpLayer.patch(request, options);
       default                         : return this.apiMap.httpLayer.get(request, options);
     }
   }
@@ -185,10 +176,10 @@ export class MpResourceMap {
         });
       }
 
-      solveFunc(request.endPoint.afterResponse, request, response).then(
+      solveFunc(this.apiMap.afterResponse, request, response).then(
         () => {
           solveFunc(this.afterResponse, request, response).then(
-            () => solveFunc(this.apiMap.afterResponse, request, response).then(
+            () => solveFunc(request.endPoint.afterResponse, request, response).then(
               () => resolve(),
               () => reject()
             ),

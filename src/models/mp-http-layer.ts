@@ -7,4 +7,5 @@ export interface MpHttpLayer {
   post   ?: (request : MpRequest, options ?: any) => Promise<MpResponse>;
   head   ?: (request : MpRequest, options ?: any) => Promise<MpResponse>;
   delete ?: (request : MpRequest, options ?: any) => Promise<MpResponse>;
+  patch  ?: (request : MpRequest, options ?: any) => Promise<MpResponse>;
 }

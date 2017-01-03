@@ -3,5 +3,6 @@ export enum MpHttpRequestMethod {
   PUT,
   POST,
   HEAD,
-  DELETE
+  DELETE,
+  PATCH
 }
