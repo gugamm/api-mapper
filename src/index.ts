@@ -1,5 +1,5 @@
 import { MpHeaders, MpRequestEventHandler, MpResponseEventHandler, MpHttpLayer,
-         MpConfig, MpResource, MpEndPoint, MpRequestParams, MpRequest, buildMpRequest, MpResponse, MpHttpRequestMethod } from './models/index';
+  MpConfig, MpResource, MpEndPoint, MpRequestParams, MpRequest, buildMpRequest, MpResponse, MpHttpRequestMethod } from './models/index';
 
 export class MpResourceMap {
   public name           : string;
@@ -192,7 +192,6 @@ export class MpResourceMap {
   }
 }
 
-
 export class MpApiMap {
   public host      : string;
   public headers   : MpHeaders;
@@ -242,3 +241,4 @@ export class MpApiMap {
 }
 
 export * from './models/index';
+export * from './http-layers/browser-layer';
