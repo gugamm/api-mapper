@@ -8,7 +8,7 @@ export class MpBrowserHttpLayer implements MpHttpLayer {
       return new ActiveXObject('Microsoft.XMLHTTP');
   }
   private doRequest(method : string, request : MpRequest) : Promise<MpResponse> {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
       let xhr = this.buildXhr();
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
