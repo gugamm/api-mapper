@@ -4,7 +4,7 @@ Api-Mapper is a library written in TypeScript. It is easy to use, isomorphic, li
 
 Version
 -------------
-v1.0
+v1.2
 
 Docs
 -------------
@@ -106,7 +106,7 @@ The result path is : "http://www.myapi.com/api/students/10?anotherParameter=exam
 
 #### Headers
 
-You can set headers at configuration time or at run-time(after the map has been created). To do so, use the property "headers" defined in MpConfig, MpResource and MpEndPoint.
+You can set headers at **configuration time or at run-time**(after the map has been created). To do so, use the property "headers" defined in MpConfig, MpResource and MpEndPoint.
 
 Example :
 
@@ -128,7 +128,7 @@ var myConfig : MpConfig = {
 					name : 'getStudents',
 					path : '',
 					headers : {
-						'A-Header' : 'world'
+						'A-Header' : 'blablum'
 					},
 				},
 				{
@@ -141,7 +141,15 @@ var myConfig : MpConfig = {
 }
 ```
 
-> **Note:** There is a override order that this library follows. It is from inside to outside, therefore, 'A-Header' final value is going to be 'hello-world'. You can use this to override any header value globally or for an entire resource if you want.
+Run-Time example :
+
+```
+api.Students.endPoints['getStudents'].headers = { 'Content-Type' : 'text/plain' };
+api.Students.headers = { 'Content-Type' : 'text/plain' };
+api.headers = { 'Content-Type' : 'text/plain' };
+```
+
+> **Note:** There is a override order that this library follows. It is from outside to inside, therefore, 'A-Header' final value is going to be 'blablum'.
 
 #### BeforeRequest and AfterResponse
 
@@ -197,7 +205,7 @@ the result for **myApiMap.getStudents().then((response : MpResponse) => console.
 ```
 
 
-> **Note:** There is a override order that this library follows. It is from inside to outside. So request events handler defined inside are called and resolved before the upper handler. Note that if the handler returns a Promise, the application will wait for that Promise to finish before executing the next one. If a Promise resolve false, the others Promises will not execute, since the request will be cancelled.
+> **Note:** There is a override order that this library follows. It is from outside to inside. So request events handler defined globally are called and resolved before inner handlers. Note that if a handler returns a Promise, the application will wait for that Promise to finish before executing the next one. If a Promise resolve false, the others Promises will not execute, since the request will be cancelled.
 
 ####  Adding a resource at run-time
 
@@ -219,6 +227,20 @@ myApiMap.Players.getPlayers().then(
 	(response : MpResponse) => console.log(response.data)
 );
 ```
+
+####  Modifying end point at run-time
+
+To access the end points of a resource just use the 'endPoints' property of a resource.
+
+```
+myApiMap.Students.endPoints['getStudent'].path = '/';
+myApiMap.Students.endPoints['getStudent'].method = MpHttpRequestMethod.POST;
+myApiMap.Students.endPoints['getStudent'].beforeRequest = function (request : MpRequest) : boolean { 
+	return true; 
+};
+```
+
+**This library does not support changing name at run-time. In future versions, this may be possible. Another feature is that we will be able to add and remove end points of a resource at run-time**.
 
 ####  Generated end point methods
 
