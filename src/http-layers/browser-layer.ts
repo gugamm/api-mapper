@@ -17,7 +17,7 @@ export class MpBrowserHttpLayer implements MpHttpLayer {
             data : xhr.responseText,
             extras : xhr
           };
-          resolve(xhr);
+          resolve(response);
         }
       };
       xhr.open(method, request.fullPath, true);
@@ -43,6 +43,6 @@ export class MpBrowserHttpLayer implements MpHttpLayer {
     return this.doRequest('DELETE', request);
   }
   public patch(request : MpRequest)  : Promise<MpResponse> {
-    return this.doRequest('patch', request);
+    return this.doRequest('PATCH', request);
   }
 }
