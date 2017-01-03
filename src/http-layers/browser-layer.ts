@@ -17,7 +17,7 @@ export class MpBrowserHttpLayer implements MpHttpLayer {
             data : xhr.responseText,
             extras : xhr
           };
-          resolve(xhr);
+          resolve(response);
         }
       };
       xhr.open(method, request.fullPath, true);
